@@ -47,11 +47,24 @@ HashMap * create_hasmap(size_t^2 key_space)
 		return NULL;
 	}
 
-	
-	
+
+
 	malloc(sizeof());
 
 	return newp;//POINTER TO THE NEW HASMAP
+}
+
+unsigned int hash(unsigned char *input)		//dan bernstein hash function
+{
+	unsigned int hash_value = 5381;
+
+	int i;
+
+	while (i = *input++)
+		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
+
+
+	return hash_value;
 }
 
 void??? insert_data(HashMap * hm, char key, void *data, resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
