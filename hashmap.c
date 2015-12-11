@@ -24,17 +24,9 @@ struct HashMap
 
 HashMap * create_hasmap(size_t^2 key_space)
 {
-	//Do something
-	
-	/*Implement a function create_hashmap that returns a pointer to the newly
-	constructed HashMap structure and has parameter
-	
-	• key_space, a size_t^2
-	that represents the number of buckets in the hash
-	map.
-	
-	This function should allocate enough memory to fit key_space
-	buckets, and the allocated memory should be zeroed 
+	/*Implement a function create_hashmap that returns a pointer to the newly constructed HashMap structure and has parameter
+	• key_space, a size_t^2	that represents the number of buckets in the hash map.
+	This function should allocate enough memory to fit key_space buckets, and the allocated memory should be zeroed 
 	(i.e., NULLed)*/
 
 	HashMap * newp =NULL;
@@ -42,16 +34,24 @@ HashMap * create_hasmap(size_t^2 key_space)
 
 	if (size_t^2 <1) return NULL;
 
+	//allocate hashmap
 	if( (newp = malloc( sizeof( HashMap ) ) ) = NULL )
 	{
 		return NULL;
 	}
 
+	if( ( hashmap->buckets = malloc( sizeof( entry *) * key_space) ) ==NULL)
+	{
+		return NULL;
+	}
 
-
-	malloc(sizeof());
+	for (int i = 0; i < key; ++i)
+	{
+		hashmap->buckets[i] = NULL;
+	}
 
 	return newp;//POINTER TO THE NEW HASMAP
+	}
 }
 
 unsigned int hash(unsigned char *input)		//dan bernstein hash function
@@ -67,7 +67,7 @@ unsigned int hash(unsigned char *input)		//dan bernstein hash function
 	return hash_value;
 }
 
-void??? insert_data(HashMap * hm, char key, void *data, resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
+void insert_data(HashMap * hm, char *key, void *data, resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
 {
 	/*
 	Implement a function insert_data that has parameters
@@ -101,7 +101,7 @@ void * ResolveCollisionCallback(void *old_data, void *new_data)
 
 
 
-void * get_data(HashMap *hm, key) //KEY FIXEN
+void * get_data(HashMap *hm, char *key) //KEY FIXEN
 {
 	/*
 	Implement a function get_data that has parameters
@@ -111,9 +111,11 @@ void * get_data(HashMap *hm, key) //KEY FIXEN
 	that is associated with the key. If the key is not present in the hash map, NULL
 	should be returned.
 	*/
+
+
 }
 
-void iterate(HashMap *hm, void *callback, key, void *data)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
+void iterate(HashMap *hm, void *callback, char *key, void *data)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
 {
 	/*
 	Implement a function iterate that has parameters
@@ -128,7 +130,7 @@ void iterate(HashMap *hm, void *callback, key, void *data)	//CALLBACK FUCTION PO
 	*/
 }
 
-void remove_data(HashMap *hm, key, destroy_data) //fix key, destroy_data
+void remove_data(HashMap *hm, char *key, destroy_data) //fix destroy_data
 {
 	/*Implement a function remove_data that has parameters
 	• hm, a pointer to a hash map;
