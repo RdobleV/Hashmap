@@ -113,6 +113,21 @@ void * get_data(HashMap *hm, char *key) //KEY FIXEN
 	*/
 
 
+	unsigned int bin = 0;
+	entry data;
+
+	bin = hash(key);
+
+	data = hashmap->buckets[bin];
+
+	if (data == NULL )
+	{
+		return NULL;
+	}
+
+	return data;
+
+
 }
 
 void iterate(HashMap *hm, void *callback, char *key, void *data)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
@@ -128,6 +143,17 @@ void iterate(HashMap *hm, void *callback, char *key, void *data)	//CALLBACK FUCT
 	it finds, the callback function should be called with the two members of the
 	element.
 	*/
+}
+
+void iterate_callback(char *key, void *data)
+{
+	//callback, a pointer to a function that returns nothing (i.e. void) and has
+	//two parameters:
+	//– key, a null-terminated string of characters;
+	//– data, a void pointer to the data.
+	//This function should iterate over the entire hash map. For each data element
+	//it finds, the callback function should be called with the two members of the
+	//element.
 }
 
 void remove_data(HashMap *hm, char *key, destroy_data) //fix destroy_data
