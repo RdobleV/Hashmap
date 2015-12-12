@@ -21,6 +21,10 @@ struct HashMap
 
 };
 
+typedef void * (*ResolveCollision) (void *old_data, void *new_data);
+
+typedef void * (*iterate_callback) (char *key, void *data);
+
 
 HashMap * create_hasmap(size_t^2 key_space)
 {
@@ -40,21 +44,21 @@ HashMap * create_hasmap(size_t^2 key_space)
 		return NULL;
 	}
 
-	if( ( hashmap->buckets = malloc( sizeof( entry *) * key_space) ) ==NULL)
+	if( ( newp->buckets = malloc( sizeof( entry *) * key_space) ) ==NULL)
 	{
 		return NULL;
 	}
 
 	for (int i = 0; i < key; ++i)
 	{
-		hashmap->buckets[i] = NULL;
+		newp->buckets[i] = NULL;
 	}
 
 	return newp;//POINTER TO THE NEW HASMAP
 	}
 }
 
-unsigned int hash(unsigned char *input)		//dan bernstein hash function
+unsigned int hash(unsigned char *input, HashMap hm)		//dan bernstein hash function
 {
 	unsigned int hash_value = 5381;
 
@@ -64,10 +68,10 @@ unsigned int hash(unsigned char *input)		//dan bernstein hash function
 		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
 
 
-	return hash_value;
+	return hash_value % sizeof(hm->size);
 }
 
-void insert_data(HashMap * hm, char *key, void *data, resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
+void insert_data(HashMap * hm, char *key, void * data, ResolveCollision resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
 {
 	/*
 	Implement a function insert_data that has parameters
@@ -81,12 +85,30 @@ void insert_data(HashMap * hm, char *key, void *data, resolve_collision) //KEY F
 	resolve_collision function should be called with the the previously stored
 	data and data as arguments and the returned void pointer should be stored in
 	the bucket instead.
-	
-	
 	*/
+
+	unsigned int bucket_num = hash(key,hm);
+
+	//check for collision
+	if(hm.buckets[bucket_num] -> key !=NULL || hm.buckets[bucket_num] -> data != NULL)
+	{
+		//collision detected
+		void* col_sol = ResolveCollision(hm.buckets[bucket_num] ->data, data);
+		hm.buckets[bucket_num] -> data = col_sol;
+	}
+	
+	//call resolve_collision: pointer to old data (retrieve) pointer to new data
+	//store returned void pointer
+	else{
+		//if no collision
+		//store key 
+		memcpy(hm.buckets[bucket_num] ->key, key, sizeof(key));
+		//store data pointer
+		hm.buckets[bucket_num] -> data = data;
+	}
 }
 
-void * ResolveCollisionCallback(void *old_data, void *new_data)
+void * ResolveCollision(void *old_data, void *new_data)
 {
 	/*
 	ResolveCollisionCallback, a pointer to a function that returns a void pointer
@@ -96,12 +118,17 @@ void * ResolveCollisionCallback(void *old_data, void *new_data)
 	The function should determine what data is stored in the has map in case of a
 	key collision by returning the void pointer to the data that is to be stored.
 	*/
+	//stop de nieuwe data in de volgende bucket die geen collision oplevert, 
+	//return pointer naar die bucket. (bedenk iets waardoor je de old data niet kwijtraakt (list oid))
+
+	//make linked list met de pointers naar de data
+	//
 }
 
 
 
 
-void * get_data(HashMap *hm, char *key) //KEY FIXEN
+void * get_data(HashMap *hm, char *key) 
 {
 	/*
 	Implement a function get_data that has parameters
@@ -130,7 +157,7 @@ void * get_data(HashMap *hm, char *key) //KEY FIXEN
 
 }
 
-void iterate(HashMap *hm, void *callback, char *key, void *data)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
+void iterate(HashMap *hm, iterate_callback callback)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
 {
 	/*
 	Implement a function iterate that has parameters
@@ -156,7 +183,7 @@ void iterate_callback(char *key, void *data)
 	//element.
 }
 
-void remove_data(HashMap *hm, char *key, destroy_data) //fix destroy_data
+void remove_data(HashMap *hm, char *key, void (*DestroyData_Callback)(void *data)) //fix destroy_data
 {
 	/*Implement a function remove_data that has parameters
 	• hm, a pointer to a hash map;
