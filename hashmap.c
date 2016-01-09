@@ -120,11 +120,6 @@ void * get_data(HashMap *hm, const char *key)
 
 	data = hm->buckets[bin].value;
 
-	if (data == NULL )
-	{
-		return NULL;
-	}
-
 	return data;
 
 
