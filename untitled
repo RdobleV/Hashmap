@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+unsigned int hash(const char *input, HashMap *hm)		
+{
+	unsigned int hash_value = 5381;
+
+	unsigned int i;
+
+	while ((i = *input++))
+	{
+		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
+	}
+
+
+	return hash_value % sizeof(hm->size);
+
+}
+
+void main(){
+	const char * key_1    = "ab";
+	const char * key_2    = "cd";
+	const char * key_3    = "ad";
+	const char * key_4    = "xy";
+	unsigned int a = hash(key_1);
+	unsigned int b = hash(key_2);
+	unsigned int c = hash(key_3);
+	unsigned int d = hash(key_4);
+
+	printf("(\"%s)\n", a);
+	printf("(\"%s)\n", b);
+	printf("(\"%s)\n", c);
+	printf("(\"%s)\n", d);
+}

@@ -16,10 +16,10 @@ typedef struct HashMap HashMap;
 struct HashMap
 {
 	size_t size;
-	entry **buckets;
+	entry *buckets;
 
 };
-typedef void * (*DestroyDataCallback) (void *);
+typedef void * (*DestroyDataCallback) (void * data);
 typedef void * (*ResolveCollisionCallback) (void *, void *);
 
 
@@ -35,7 +35,7 @@ void * get_data(HashMap *hm, const char *key) ;
 
 void iterate(HashMap *hm, void (*callback)(const char*, void *));
 
-void remove_data(HashMap *hm, const char *key, DestroyDataCallback *destroy_data); 
+void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data); 
 
 void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data);
 
