@@ -1,0 +1,12 @@
+CC = gcc -g -Wall -std=c99 -c
+CFLAGS+= -g -Wall -std=c99
+
+TARGET = hashmap
+
+all: 
+	$(CC) hashmap.c -o $(TARGET)
+
+submit:
+	zip submit.zip makefile *.[ch]
+
+

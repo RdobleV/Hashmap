@@ -1,45 +1,20 @@
-#include <stdio.h>
-#include <string.h>
 #include "hashmap.h"
 
-typedef struct entry entry;
 
-struct entry
+
+
+
+
+HashMap * create_hashmap(size_t key_space)
 {
-	char *key;
-	char *value;
-	entry *next;
-};
-
-
-typedef struct HashMap HashMap;
-
-struct HashMap
-{
-	size_t^2 size;
-	entry **buckets;
-
-};
-
-typedef void * (*ResolveCollision) (void *old_data, void *new_data);
-
-typedef void * (*iterate_callback) (char *key, void *data);
-
-
-HashMap * create_hasmap(size_t^2 key_space)
-{
-	/*Implement a function create_hashmap that returns a pointer to the newly constructed HashMap structure and has parameter
-	• key_space, a size_t^2	that represents the number of buckets in the hash map.
-	This function should allocate enough memory to fit key_space buckets, and the allocated memory should be zeroed 
-	(i.e., NULLed)*/
+	
 
 	HashMap * newp =NULL;
-	int i;
-
-	if (size_t^2 <1) return NULL;
+	
+	if (key_space <1) return NULL;
 
 	//allocate hashmap
-	if( (newp = malloc( sizeof( HashMap ) ) ) = NULL )
+	if( (newp = malloc( sizeof( HashMap ) ) ) == NULL )
 	{
 		return NULL;
 	}
@@ -49,52 +24,43 @@ HashMap * create_hasmap(size_t^2 key_space)
 		return NULL;
 	}
 
-	for (int i = 0; i < key; ++i)
+	for (size_t i = 0; i < key_space; ++i)
 	{
 		newp->buckets[i] = NULL;
 	}
 
 	return newp;//POINTER TO THE NEW HASMAP
 	}
-}
 
-unsigned int hash(unsigned char *input, HashMap hm)		//dan bernstein hash function
+
+unsigned int hash(const char *input, HashMap *hm)		
 {
 	unsigned int hash_value = 5381;
 
-	int i;
+	unsigned int i;
 
-	while (i = *input++)
+	while ((i = *input++))
+	{
 		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
+	}
 
 
 	return hash_value % sizeof(hm->size);
 }
 
-void insert_data(HashMap * hm, char *key, void * data, ResolveCollision resolve_collision) //KEY FIXEN, RESOLVE COLLISION FIXEN
+void insert_data(HashMap * hm, const char *key, void * data, void *(*ResolveCollisionCallback)(void*, void *)) 
 {
-	/*
-	Implement a function insert_data that has parameters
-	• hm, a pointer to a hash map;
-	• key, a null-terminated string of characters;
-	• data, a void pointer to the source data;
-	• resolve_collision, a ResolveCollisionCallback (see below).
-	The function should store the data pointer and a copy of the key in the bucket
-	that can be found by applying the hash function on the key. In case of a
-	collision, i.e. when there already is data with the same key in the hash map, the
-	resolve_collision function should be called with the the previously stored
-	data and data as arguments and the returned void pointer should be stored in
-	the bucket instead.
-	*/
+
 
 	unsigned int bucket_num = hash(key,hm);
 
 	//check for collision
-	if(hm.buckets[bucket_num] -> key !=NULL || hm.buckets[bucket_num] -> data != NULL)
+	if(hm->buckets[bucket_num] -> key !=NULL || hm->buckets[bucket_num] -> value != NULL)
 	{
 		//collision detected
-		void* col_sol = ResolveCollision(hm.buckets[bucket_num] ->data, data);
-		hm.buckets[bucket_num] -> data = col_sol;
+		free(hm);
+	void* col_sol = ResolveCollisionCallback(hm->buckets[bucket_num], data);
+		hm->buckets[bucket_num] -> value = col_sol;
 	}
 	
 	//call resolve_collision: pointer to old data (retrieve) pointer to new data
@@ -102,50 +68,34 @@ void insert_data(HashMap * hm, char *key, void * data, ResolveCollision resolve_
 	else{
 		//if no collision
 		//store key 
-		memcpy(hm.buckets[bucket_num] ->key, key, sizeof(key));
+		memcpy(hm->buckets[bucket_num] ->key, key, sizeof(char[2]));
 		//store data pointer
-		hm.buckets[bucket_num] -> data = data;
+		hm->buckets[bucket_num] -> value = data;
 	}
 }
 
-void * ResolveCollision(void *old_data, void *new_data)
+void * ResolveCollisionCallback(void *old_data, void *new_data)
 {
-	/*
-	ResolveCollisionCallback, a pointer to a function that returns a void pointer
-	and has two parameters:
-	• old_data, a void pointer to the previously stored data;
-	• new_data, a void pointer to the data that is being newly inserted.
-	The function should determine what data is stored in the has map in case of a
-	key collision by returning the void pointer to the data that is to be stored.
-	*/
-	//stop de nieuwe data in de volgende bucket die geen collision oplevert, 
-	//return pointer naar die bucket. (bedenk iets waardoor je de old data niet kwijtraakt (list oid))
 
-	//make linked list met de pointers naar de data
-	//
+	void * *newlist = malloc(sizeof(old_data) + sizeof(new_data));
+
+	newlist[0]= old_data;
+	newlist[1]= new_data;
+
+	return newlist;
+
 }
 
-
-
-
-void * get_data(HashMap *hm, char *key) 
+void * get_data(HashMap *hm, const char *key) 
 {
-	/*
-	Implement a function get_data that has parameters
-	• hm, a pointer to a hash map;
-	• key, a null-terminated string of characters.
-	The function should return the data pointer (a void pointer) in the hash std::map<key, value> map;
-	that is associated with the key. If the key is not present in the hash map, NULL
-	should be returned.
-	*/
 
 
 	unsigned int bin = 0;
-	entry data;
+	void * data;
 
-	bin = hash(key);
+	bin = hash(key,hm);
 
-	data = hashmap->buckets[bin];
+	data = hm->buckets[bin]->value;
 
 	if (data == NULL )
 	{
@@ -157,21 +107,23 @@ void * get_data(HashMap *hm, char *key)
 
 }
 
-void iterate(HashMap *hm, iterate_callback callback)	//CALLBACK FUCTION POINTER MAKEN, KEY FIXEN, is deze functie void?
+void iterate(HashMap *hm, void (*iterate_callback)(const char*, void *))	
 {
-	/*
-	Implement a function iterate that has parameters
-	• hm, a pointer to a hash map;
-	• callback, a pointer to a function that returns nothing (i.e. void) and has
-	two parameters:
-	– key, a null-terminated string of characters;
-	– data, a void pointer to the data.
-	This function should iterate over the entire hash map. For each data element
-	it finds, the callback function should be called with the two members of the
-	element.
-	*/
+	
+	size_t i;
+	
+	for (i = 0; i < hm->size; ++i)
+	{
+		if(hm->buckets[i]->value)
+		{
+			iterate_callback(hm->buckets[i]->key, hm->buckets[i] ->value);
+		}
+		
+
+	}
 }
 
+/*
 void iterate_callback(char *key, void *data)
 {
 	//callback, a pointer to a function that returns nothing (i.e. void) and has
@@ -182,44 +134,47 @@ void iterate_callback(char *key, void *data)
 	//it finds, the callback function should be called with the two members of the
 	//element.
 }
-
-void remove_data(HashMap *hm, char *key, void (*DestroyData_Callback)(void *data)) //fix destroy_data
+*/
+//void * data, void *(*ResolveCollisionCallback)(void*, void *)
+//void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data)
+void remove_data(HashMap *hm, const char *key, void *(*destroy_data)(void *)) 
 {
-	/*Implement a function remove_data that has parameters
-	• hm, a pointer to a hash map;
-	• key, a null-terminated string of characters.
-	• destroy_data, a DestroyDataCallback (see below).
-	This function should remove the data in the hash map that is associated with
-	the given key. If the destroy_data parameter is non-NULL it should be called
-	with the data pointer of the element as argument. If the key is not present, the
-	hash map should remain untouched. As the remove_data function cannot fail,
-	its return type is void.
 
-	*/
+	if(key !=NULL)
+	{
+		if(destroy_data !=NULL)
+		{	
+			unsigned int hask = hash(key,hm);
+			free(hm->buckets[hask] ->value);
+		}
+	}
+
+
 }
-
+/*
 void DestroyDataCallback(void *data)
 {
-	/*
-	DestroyDataCallback, a pointer to to a function that returns nothing (i.e.
-	void) and has one parameter:
-	• data, a void pointer.
-	The function should clean up the data (e.g. free allocated memory).
-	*/
-
+	if(data != NULL){
+		free(data);
+	}
+	
 }
+*/
 
-
-
-void delete_hasmap(HashMap *hm, destroy_data) //destroydata fixen.
+//void delete_hasmap(HashMap *hm, DestroyDataCallback destroy_data)
+void delete_hasmap(HashMap *hm, void *(*destroy_data)(void *))
 {
-	/*  Implement a function delete_hashmap that has parameters
-	• hm, a pointer to the hash map that is to be deleted;
-	• destroy_data, a DestroyDataCallback (see 7).	
-	The function should deallocate all memory that was allocated by the hash map.
-	If the destroy_data parameter is non-NULL it should be called for every data
-	element that is stored in the hash map with the data pointer of the element as
-	argument */
+	
+	if (destroy_data !=NULL)
+	{
+		
+		for (unsigned int i = 0; i < hm->size; ++i)
+		{
+			free(hm->buckets[i]->value);
+		}
+	}
+
+	free(hm);
 }
 
 //BONUS 9, 10 see assignment
