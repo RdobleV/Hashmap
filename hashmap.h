@@ -20,20 +20,22 @@ struct HashMap
 
 };
 typedef void * (*DestroyDataCallback) (void *);
+typedef void * (*ResolveCollisionCallback) (void *, void *);
+
 
 HashMap * create_hashmap(size_t key_space);
 
 unsigned int hash(const char *input, HashMap *hm);
 
-void insert_data(HashMap * hm, const char *key, void * data, void *(*ResolveCollision)(void*, void *));
+void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCallback resolve_collision);
 
 void * ResolveCollision(void *old_data, void *new_data);
 
 void * get_data(HashMap *hm, const char *key) ;
 
-void iterate(HashMap *hm, void (*iterate_callback)(const char*, void *));
+void iterate(HashMap *hm, void (*callback)(const char*, void *));
 
-void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data); 
+void remove_data(HashMap *hm, const char *key, DestroyDataCallback *destroy_data); 
 
-void delete_hasmap(HashMap *hm, DestroyDataCallback destroy_data);
+void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data);
 

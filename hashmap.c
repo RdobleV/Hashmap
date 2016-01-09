@@ -48,18 +48,18 @@ unsigned int hash(const char *input, HashMap *hm)
 	return hash_value % sizeof(hm->size);
 }
 
-void insert_data(HashMap * hm, const char *key, void * data, void *(*ResolveCollisionCallback)(void*, void *)) 
+void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCallback resolve_collision) 
 {
 
 
 	unsigned int bucket_num = hash(key,hm);
-
+	//char test = hm -> buckets[bucket_num]->key;
 	//check for collision
 	if(hm->buckets[bucket_num] -> key !=NULL || hm->buckets[bucket_num] -> value != NULL)
 	{
 		//collision detected
-		free(hm);
-	void* col_sol = ResolveCollisionCallback(hm->buckets[bucket_num], data);
+		//free(hm);
+	void* col_sol = resolve_collision(hm->buckets[bucket_num], data);
 		hm->buckets[bucket_num] -> value = col_sol;
 	}
 	
@@ -68,12 +68,14 @@ void insert_data(HashMap * hm, const char *key, void * data, void *(*ResolveColl
 	else{
 		//if no collision
 		//store key 
-		memcpy(hm->buckets[bucket_num] ->key, key, sizeof(char[2]));
+		int length  = sizeof(key);
+		memcpy(hm->buckets[bucket_num] ->key, key, length);
 		//store data pointer
 		hm->buckets[bucket_num] -> value = data;
 	}
 }
 
+/*
 void * ResolveCollisionCallback(void *old_data, void *new_data)
 {
 
@@ -85,7 +87,7 @@ void * ResolveCollisionCallback(void *old_data, void *new_data)
 	return newlist;
 
 }
-
+*/
 void * get_data(HashMap *hm, const char *key) 
 {
 
@@ -107,7 +109,7 @@ void * get_data(HashMap *hm, const char *key)
 
 }
 
-void iterate(HashMap *hm, void (*iterate_callback)(const char*, void *))	
+void iterate(HashMap *hm, void (*callback)(const char*, void *))	
 {
 	
 	size_t i;
@@ -116,7 +118,7 @@ void iterate(HashMap *hm, void (*iterate_callback)(const char*, void *))
 	{
 		if(hm->buckets[i]->value)
 		{
-			iterate_callback(hm->buckets[i]->key, hm->buckets[i] ->value);
+			callback(hm->buckets[i]->key, hm->buckets[i] ->value);
 		}
 		
 
@@ -137,7 +139,7 @@ void iterate_callback(char *key, void *data)
 */
 //void * data, void *(*ResolveCollisionCallback)(void*, void *)
 //void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data)
-void remove_data(HashMap *hm, const char *key, void *(*destroy_data)(void *)) 
+void remove_data(HashMap *hm, const char *key, DestroyDataCallback *destroy_data) 
 {
 
 	if(key !=NULL)
@@ -162,7 +164,7 @@ void DestroyDataCallback(void *data)
 */
 
 //void delete_hasmap(HashMap *hm, DestroyDataCallback destroy_data)
-void delete_hasmap(HashMap *hm, void *(*destroy_data)(void *))
+void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data)
 {
 	
 	if (destroy_data !=NULL)
