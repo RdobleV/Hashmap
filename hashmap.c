@@ -10,7 +10,7 @@ HashMap * create_hashmap(size_t key_space)
 	
 
 	HashMap * newp;
-	
+
 	if (key_space <1) return NULL;
 
 	//allocate hashmap
@@ -18,6 +18,10 @@ HashMap * create_hashmap(size_t key_space)
 	{
 		return NULL;
 	}
+	//malloc size and insert size
+	newp->size = (size_t) malloc(sizeof(key_space));
+	newp->size = key_space;
+	
 
 	if( ( newp->buckets = malloc( sizeof( entry *) * key_space) ) ==NULL)
 	{
@@ -26,6 +30,8 @@ HashMap * create_hashmap(size_t key_space)
 
 	for (size_t i = 0; i < key_space; ++i)
 	{
+		newp->buckets[i].key = malloc(sizeof(NULL));
+		newp->buckets[i].value = malloc(sizeof(NULL));
 		newp->buckets[i].key = NULL;
 		newp->buckets[i].value = NULL;
 	}
@@ -74,11 +80,12 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 	unsigned int bucket_num = hash(key,hm);
 	//char test = hm -> buckets[bucket_num].key;
 	//check for collision
-	if(hm->buckets[bucket_num].key !=NULL || hm->buckets[bucket_num].value != NULL)
+	if(hm->buckets[bucket_num].key !=NULL /*|| hm->buckets[bucket_num].value != NULL*/)
 	{
 		//collision detected
-		//free(hm);
-	void* col_sol = resolve_collision(hm->buckets[bucket_num].value, data);
+		
+
+		void* col_sol = resolve_collision(hm->buckets[bucket_num].value, data);
 		hm->buckets[bucket_num].value = col_sol;
 	}
 	
@@ -124,16 +131,18 @@ void * get_data(HashMap *hm, const char *key)
 
 }
 
-void iterate(HashMap *hm, void (*callback)(const char*, void *))	
+void iterate(HashMap *hm, void (*callback)(const char* key, void *data))	
 {
 	
-	size_t i;
 	
-	for (i = 0; i < hm->size; ++i)
+	
+	for (size_t i = 0; i < (hm->size); ++i)
 	{
-		if(hm->buckets[i].value)
-		{
+		if(hm->buckets[i].key !=NULL)
+		{	
+			
 			(*callback)(hm->buckets[i].key, hm->buckets[i].value);
+			
 		}
 		
 	}
@@ -191,9 +200,11 @@ void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data)
 		for (unsigned int i = 0; i < hm->size; ++i)
 		{
 			free(hm->buckets[i].value);
+			free(hm->buckets[i].key);
 		}
 	}
-
+	//free(hm.size);
+	//free(hm.buckets);
 	free(hm);
 }
 

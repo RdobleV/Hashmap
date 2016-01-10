@@ -5,13 +5,13 @@
 
 unsigned int hash(const char *input)		
 {
-	unsigned int hash_value = 5381;
+	unsigned int hash_value = 0;
 
-	unsigned int i;
+	
 
-	while ((i = *input++))
+	while (*input)
 	{
-		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
+		hash_value +=(unsigned int) *input++ ;	//hash_value *33 +i 
 	}
 
 
