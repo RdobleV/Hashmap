@@ -20,10 +20,10 @@ unsigned int hash(const char *input)
 }
 
 void main(){
-	const char * key_1    = "ab";
+	const char * key_1    = "aaaaaaaaaafeafeafafeafefesefzefasfeafeaefaefafafeafaefeafafafaefaefafasfasfeaaa";
 	const char * key_2    = "cd";
-	const char * key_3    = "ad";
-	const char * key_4    = "xy";
+	const char * key_3    = "foo";
+	const char * key_4    = "oof";
 	unsigned int a = hash(key_1);
 	unsigned int b = hash(key_2);
 	unsigned int c = hash(key_3);

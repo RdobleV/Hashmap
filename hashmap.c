@@ -19,19 +19,14 @@ HashMap * create_hashmap(size_t key_space)
 		return NULL;
 	}
 	//malloc size and insert size
-	newp->size = (size_t) malloc(sizeof(key_space));
+	//newp->size = (size_t) malloc(sizeof(key_space));
 	newp->size = key_space;
 	
-
-	if( ( newp->buckets = malloc( sizeof( entry *) * key_space) ) ==NULL)
-	{
-		return NULL;
-	}
+	
+	newp->buckets = malloc(key_space*sizeof(entry));
 
 	for (size_t i = 0; i < key_space; ++i)
-	{
-		newp->buckets[i].key = malloc(sizeof(NULL));
-		newp->buckets[i].value = malloc(sizeof(NULL));
+	{	
 		newp->buckets[i].key = NULL;
 		newp->buckets[i].value = NULL;
 	}
@@ -51,27 +46,10 @@ unsigned int hash(const char *input, HashMap *hm)
 		hash_value +=(unsigned int) *input++ ;	//hash_value *33 +i 
 	}
 
+	size_t length = (hm->size)-1;
 
-	return hash_value % sizeof(hm->size);
+	return hash_value % length;
 }
-
-/* old hash function
-unsigned int hash(const char *input, HashMap *hm)		
-{
-	unsigned int hash_value = 5381;
-
-	unsigned int i;
-
-	while ((i = *input++))
-	{
-		hash_value = (33*hash_value) +i;	//hash_value *33 +i 
-	}
-
-
-	return hash_value % sizeof(hm->size);
-}
-
-*/
 
 void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCallback resolve_collision) 
 {
@@ -80,13 +58,19 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 	unsigned int bucket_num = hash(key,hm);
 	//char test = hm -> buckets[bucket_num].key;
 	//check for collision
-	if(hm->buckets[bucket_num].key !=NULL /*|| hm->buckets[bucket_num].value != NULL*/)
+	if(hm->buckets[bucket_num].key !=NULL )
 	{
-		//collision detected
-		
-
-		void* col_sol = resolve_collision(hm->buckets[bucket_num].value, data);
-		hm->buckets[bucket_num].value = col_sol;
+		//compare keys
+		if(strcmp(hm->buckets[bucket_num].key,key)!=0)
+		{
+			//new key but same hash
+			int a = 1;
+		}
+		else{
+			//collision detected
+			void* col_sol = resolve_collision(hm->buckets[bucket_num].value, data);
+			hm->buckets[bucket_num].value = col_sol;
+		}	
 	}
 	
 	//call resolve_collision: pointer to old data (retrieve) pointer to new data
@@ -98,24 +82,13 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 		hm->buckets[bucket_num].key = (char *) malloc(length);		
 		strncpy(hm->buckets[bucket_num].key, key,length);
 		//store data pointer
-		hm->buckets[bucket_num].value = (char *) malloc(length);
+		length = sizeof(data);
+		//hm->buckets[bucket_num].value = (void *) malloc(length);
 		hm->buckets[bucket_num].value = data;
 	}
 }
 
-/*
-void * ResolveCollisionCallback(void *old_data, void *new_data)
-{
 
-	void * *newlist = malloc(sizeof(old_data) + sizeof(new_data));
-
-	newlist[0]= old_data;
-	newlist[1]= new_data;
-
-	return newlist;
-
-}
-*/
 void * get_data(HashMap *hm, const char *key) 
 {
 
@@ -180,31 +153,28 @@ void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data)
 
 
 }
-/*
-void DestroyDataCallback(void *data)
-{
-	if(data != NULL){
-		free(data);
-	}
-	
-}
-*/
 
 //void delete_hasmap(HashMap *hm, DestroyDataCallback destroy_data)
-void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data)
+void delete_hashmap(HashMap *hm, DestroyDataCallback destroy_data)
 {
 	
-	if (destroy_data !=NULL)
-	{
+	
 		
-		for (unsigned int i = 0; i < hm->size; ++i)
+		for (size_t i = 0; i < (hm->size); ++i)
 		{
-			free(hm->buckets[i].value);
+			if(hm->buckets[i].key !=NULL)
+			{
+				if (destroy_data !=NULL)
+				{
+					destroy_data(hm->buckets[i].value);
+				}
+			}
+			//free(hm->buckets[i].value);
 			free(hm->buckets[i].key);
+
 		}
-	}
-	//free(hm.size);
-	//free(hm.buckets);
+	
+	free(hm->buckets);
 	free(hm);
 }
 

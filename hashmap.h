@@ -37,5 +37,5 @@ void iterate(HashMap *hm, void (*callback)(const char*, void *));
 
 void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data); 
 
-void delete_hashmap(HashMap *hm, DestroyDataCallback *destroy_data);
+void delete_hashmap(HashMap *hm, DestroyDataCallback destroy_data);
 
