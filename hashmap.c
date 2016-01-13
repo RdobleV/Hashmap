@@ -1,14 +1,8 @@
 #include "hashmap.h"
 
 
-
-
-
-
 HashMap * create_hashmap(size_t key_space)
 {
-	
-
 	HashMap * newp;
 
 	if (key_space <1) return NULL;
@@ -18,8 +12,7 @@ HashMap * create_hashmap(size_t key_space)
 	{
 		return NULL;
 	}
-	//malloc size and insert size
-	//newp->size = (size_t) malloc(sizeof(key_space));
+	//store key_space
 	newp->size = key_space;
 	
 	
@@ -32,18 +25,16 @@ HashMap * create_hashmap(size_t key_space)
 	}
 
 	return newp;//POINTER TO THE NEW HASMAP
-	}
+}
 
 
 unsigned int hash(const char *input, HashMap *hm)		
 {
 	unsigned int hash_value = 0;
 
-	
-
 	while (*input)
 	{
-		hash_value +=(unsigned int) *input++ ;	//hash_value *33 +i 
+		hash_value +=(unsigned int) *input++ ;	 
 	}
 
 	size_t length = (hm->size)-1;
@@ -51,12 +42,11 @@ unsigned int hash(const char *input, HashMap *hm)
 	return hash_value % length;
 }
 
+
 void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCallback resolve_collision) 
 {
-
-
 	unsigned int bucket_num = hash(key,hm);
-	//char test = hm -> buckets[bucket_num].key;
+
 	//check for collision
 	if(hm->buckets[bucket_num].key !=NULL )
 	{
@@ -66,6 +56,7 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 			//new key but same hash
 			int a = 1;
 		}
+
 		else{
 			//collision detected
 			void* col_sol = resolve_collision(hm->buckets[bucket_num].value, data);
@@ -83,7 +74,6 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 		strncpy(hm->buckets[bucket_num].key, key,length);
 		//store data pointer
 		length = sizeof(data);
-		//hm->buckets[bucket_num].value = (void *) malloc(length);
 		hm->buckets[bucket_num].value = data;
 	}
 }
@@ -91,8 +81,6 @@ void insert_data(HashMap * hm, const char *key, void * data, ResolveCollisionCal
 
 void * get_data(HashMap *hm, const char *key) 
 {
-
-
 	unsigned int bin = 0;
 	void * data;
 
@@ -101,14 +89,11 @@ void * get_data(HashMap *hm, const char *key)
 	data = hm->buckets[bin].value;
 
 	return data;
-
 }
+
 
 void iterate(HashMap *hm, void (*callback)(const char* key, void *data))	
 {
-	
-	
-	
 	for (size_t i = 0; i < (hm->size); ++i)
 	{
 		if(hm->buckets[i].key !=NULL)
@@ -121,23 +106,9 @@ void iterate(HashMap *hm, void (*callback)(const char* key, void *data))
 	}
 }
 
-/*
-void iterate_callback(char *key, void *data)
-{
-	//callback, a pointer to a function that returns nothing (i.e. void) and has
-	//two parameters:
-	//– key, a null-terminated string of characters;
-	//– data, a void pointer to the data.
-	//This function should iterate over the entire hash map. For each data element
-	//it finds, the callback function should be called with the two members of the
-	//element.
-}
-*/
-//void * data, void *(*ResolveCollisionCallback)(void*, void *)
-//void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data)
+
 void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data) 
 {
-
 	if(key !=NULL)
 	{
 		unsigned int hask = hash(key,hm);
@@ -150,29 +121,22 @@ void remove_data(HashMap *hm, const char *key, DestroyDataCallback destroy_data)
 		}
 		
 	}
-
-
 }
 
-//void delete_hasmap(HashMap *hm, DestroyDataCallback destroy_data)
+
 void delete_hashmap(HashMap *hm, DestroyDataCallback destroy_data)
 {
-	
-	
-		
-		for (size_t i = 0; i < (hm->size); ++i)
+	for (size_t i = 0; i < (hm->size); ++i)
+	{
+		if(hm->buckets[i].key !=NULL)
 		{
-			if(hm->buckets[i].key !=NULL)
+			if (destroy_data !=NULL)
 			{
-				if (destroy_data !=NULL)
-				{
-					destroy_data(hm->buckets[i].value);
-				}
+				destroy_data(hm->buckets[i].value);
 			}
-			//free(hm->buckets[i].value);
-			free(hm->buckets[i].key);
-
 		}
+		free(hm->buckets[i].key);
+	}
 	
 	free(hm->buckets);
 	free(hm);
